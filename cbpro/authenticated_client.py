@@ -12,7 +12,7 @@ import base64
 import json
 from requests.auth import AuthBase
 from cbpro.public_client import PublicClient
-from cbpro.cbpro_auth import CBProAuth
+from cbpro.cbpro_auth import AdvancedTradeAuth
 
 
 class AuthenticatedClient(PublicClient):
@@ -26,21 +26,24 @@ class AuthenticatedClient(PublicClient):
         auth (CBProAuth): Custom authentication handler for each request.
         session (requests.Session): Persistent HTTP connection object.
     """
-    def __init__(self, key, b64secret, passphrase,
-                 api_url="https://api.pro.coinbase.com"):
+
+    api_v2 = 'https://api.pro.coinbase.com'
+    api_v3 = 'https://api.coinbase.com/api/v3/brokerage'
+
+    def __init__(self, key, b64secret):
         """ Create an instance of the AuthenticatedClient class.
 
         Args:
             key (str): Your API key.
             b64secret (str): The secret key matching your API key.
-            passphrase (str): Passphrase chosen when setting up key.
             api_url (Optional[str]): API URL. Defaults to cbpro API.
         """
         super(AuthenticatedClient, self).__init__(api_url)
-        self.auth = CBProAuth(key, b64secret, passphrase)
+        self.auth = AdvancedTradeAuth(key, secret)
         self.session = requests.Session()
 
     def get_account(self, account_id):
+        
         """ Get information for a single account.
 
         Use this endpoint when you know the account_id.
@@ -61,6 +64,7 @@ class AuthenticatedClient(PublicClient):
         return self._send_message('get', '/accounts/' + account_id)
 
     def get_accounts(self):
+
         """ Get a list of trading all accounts.
 
         When you place an order, the funds for the order are placed on
